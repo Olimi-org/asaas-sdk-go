@@ -13,15 +13,18 @@ import (
 	"time"
 )
 
-type Headers map[string]interface{}
-type QueryParams map[string]interface{}
-type PathParams []interface{}
+// Constante para o tempo limite padrão da requisição em segundos
+const DefaultRequestTimeoutSeconds = 40
+
+type Headers map[string]string
+type QueryParams map[string]any
+type PathParams []any
 
 // Params Parâmetros para o método Request
 type Params struct {
 	Method       string
 	URL          string
-	Body         interface{}
+	Body         any
 	Headers      Headers
 	Timeout      int
 	PathParams   PathParams
@@ -40,7 +43,7 @@ type BasicAuth struct {
 type Response struct {
 	StatusCode int
 	Headers    Headers
-	Body       map[string]interface{}
+	Body       map[string]any
 	RawBody    []byte
 }
 
@@ -108,7 +111,7 @@ func New(params Params) (*Response, error) {
 	if len(params.Headers) > 0 {
 
 		for header, value := range params.Headers {
-			request.Header.Set(header, toString(value))
+			request.Header.Set(header, value)
 		}
 
 	}
@@ -118,7 +121,7 @@ func New(params Params) (*Response, error) {
 
 	// Verificando se algum timeout foi passado por parametro, caso não tenha sido passado então setamos 40 por padrão.
 	if params.Timeout == 0 {
-		params.Timeout = 40
+		params.Timeout = DefaultRequestTimeoutSeconds
 	}
 
 	// Setando o timeout no client.
@@ -146,17 +149,17 @@ func New(params Params) (*Response, error) {
 	}
 
 	// Decodificando a resposta da API.
-	var untypedResponseBody interface{}
+	var untypedResponseBody any
 	err = json.Unmarshal(rawBody, &untypedResponseBody)
 
 	// Verificando se a API retornou um Objeto JSON ou um Array de Objetos JSON.
 	// Caso a API tenha retornado um Objeto de JSON então atribuimos direto no retorno, caso tiver retornar um Array ou outro tipo de dado,
 	// então coloca o retorno da API dentro do campo "data" o retorno.
-	var responseBody map[string]interface{}
-	if jsonObject, isJsonObject := untypedResponseBody.(map[string]interface{}); isJsonObject {
+	var responseBody map[string]any
+	if jsonObject, isJsonObject := untypedResponseBody.(map[string]any); isJsonObject {
 		responseBody = jsonObject
 	} else {
-		responseBody = map[string]interface{}{"data": untypedResponseBody}
+		responseBody = map[string]any{"data": untypedResponseBody}
 	}
 
 	// Verificando se os errors devem ser tratados.
@@ -184,7 +187,7 @@ func New(params Params) (*Response, error) {
 
 		// Se não tiver body e for um StatusCode de sucesso (StatusCode < 300) então retorna uma response sem body
 		if res.ContentLength == 0 && res.StatusCode < 300 {
-			return &Response{StatusCode: res.StatusCode, Headers: headers, Body: map[string]interface{}{}, RawBody: []byte{}}, nil
+			return &Response{StatusCode: res.StatusCode, Headers: headers, Body: map[string]any{}, RawBody: []byte{}}, nil
 		} else {
 			return &Response{StatusCode: res.StatusCode, Headers: headers, RawBody: rawBody, Body: responseBody}, err
 		}
@@ -195,7 +198,7 @@ func New(params Params) (*Response, error) {
 }
 
 // getError retorna o erro tratado de uma request.
-func getError(body map[string]interface{}, rawBody ...[]byte) error {
+func getError(body map[string]any, rawBody ...[]byte) error {
 
 	// Tentando buscar a mensagem de erro dentro do body.
 	if body != nil {
@@ -221,8 +224,8 @@ func getError(body map[string]interface{}, rawBody ...[]byte) error {
 }
 
 // stringSlice convert []interface to []string
-func stringSlice(itface interface{}) []string {
-	s, ok := itface.([]interface{})
+func stringSlice(itface any) []string {
+	s, ok := itface.([]any)
 	if !ok {
 		return []string{toString(itface)}
 	}
@@ -234,13 +237,13 @@ func stringSlice(itface interface{}) []string {
 }
 
 // toString é o método responsável por retornar o valor de uma interface (pode ser ponteiro ou não) em string.
-func toString(v interface{}) string {
+func toString(v any) string {
 	if v == nil {
 		return ""
 	}
 
 	rv := reflect.ValueOf(v)
-	if rv.Kind() == reflect.Ptr {
+	if rv.Kind() == reflect.Pointer {
 
 		if rv.IsNil() {
 			return ""

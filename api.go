@@ -11,6 +11,25 @@ type environment string
 
 const Production environment = "production"
 const Sandbox environment = "sandbox"
+// Constantes da API
+const (
+	// Chaves dos cabeçalhos (Headers)
+	HeaderAccessToken = "access_token"
+
+	// Caminhos da API
+	PathVersion        = "/v3"
+	PathCustomers      = PathVersion + "/customers"
+	PathPayments       = PathVersion + "/payments"
+	PathSubscriptions  = PathVersion + "/subscriptions"
+
+	// URLs dos ambientes
+	BaseURLProduction = "https://api.asaas.com"
+	BaseURLSandbox    = "https://sandbox.asaas.com/api"
+
+	// Códigos de status HTTP
+	StatusClientErrorMin = 400
+)
+
 
 type AsaasApi struct {
 	BaseURL string
@@ -30,8 +49,8 @@ func (a *AsaasApi) CreateCustomer(customerRequest CustomerRequest) (*CustomerRes
 	params := request.Params{
 		Method:  "POST",
 		Body:    customerRequest,
-		Headers: map[string]interface{}{"access_token": a.Token},
-		URL:     a.BaseURL + "/v3/customers",
+		Headers: map[string]string{HeaderAccessToken: a.Token},
+		URL:     a.BaseURL + PathCustomers,
 	}
 
 	response, err := request.New(params)
@@ -39,7 +58,7 @@ func (a *AsaasApi) CreateCustomer(customerRequest CustomerRequest) (*CustomerRes
 		return nil, nil, err
 	}
 
-	if response.StatusCode > 300 {
+	if response.StatusCode >= StatusClientErrorMin {
 		resp, err := parseError(response.RawBody)
 		return nil, resp, err
 	}
@@ -54,8 +73,8 @@ func (a *AsaasApi) GetCustomerByAsaasId(customerId string) (*CustomerResponse, *
 
 	params := request.Params{
 		Method:  "GET",
-		Headers: map[string]interface{}{"access_token": a.Token},
-		URL:     a.BaseURL + "/v3/customers/" + customerId,
+		Headers: map[string]string{HeaderAccessToken: a.Token},
+		URL:     a.BaseURL + PathCustomers + "/" + customerId,
 	}
 
 	response, err := request.New(params)
@@ -63,7 +82,7 @@ func (a *AsaasApi) GetCustomerByAsaasId(customerId string) (*CustomerResponse, *
 		return nil, nil, err
 	}
 
-	if response.StatusCode > 300 {
+	if response.StatusCode >= StatusClientErrorMin {
 		resp, err := parseError(response.RawBody)
 		return nil, resp, err
 	}
@@ -78,9 +97,9 @@ func (a *AsaasApi) GetCustomerByCpfCnpj(customerCpfCnpj string) (*CustomerRespon
 
 	params := request.Params{
 		Method:  "GET",
-		Headers: map[string]interface{}{"access_token": a.Token},
-		URL:     a.BaseURL + "/v3/customers",
-		QueryParams: map[string]interface{}{
+		Headers: map[string]string{HeaderAccessToken: a.Token},
+		URL:     a.BaseURL + PathCustomers,
+		QueryParams: map[string]any{
 			"cpfCnpj": customerCpfCnpj,
 		},
 	}
@@ -90,7 +109,7 @@ func (a *AsaasApi) GetCustomerByCpfCnpj(customerCpfCnpj string) (*CustomerRespon
 		return nil, nil, err
 	}
 
-	if response.StatusCode > 300 {
+	if response.StatusCode >= StatusClientErrorMin {
 		resp, err := parseError(response.RawBody)
 		return nil, resp, err
 	}
@@ -110,9 +129,9 @@ func (a *AsaasApi) GetCustomerByName(customerName string) (*CustomerResponse, *E
 
 	params := request.Params{
 		Method:  "GET",
-		Headers: map[string]interface{}{"access_token": a.Token},
-		URL:     a.BaseURL + "/v3/customers",
-		QueryParams: map[string]interface{}{
+		Headers: map[string]string{HeaderAccessToken: a.Token},
+		URL:     a.BaseURL + PathCustomers,
+		QueryParams: map[string]any{
 			"name": customerName,
 		},
 	}
@@ -122,7 +141,7 @@ func (a *AsaasApi) GetCustomerByName(customerName string) (*CustomerResponse, *E
 		return nil, nil, err
 	}
 
-	if response.StatusCode > 300 {
+	if response.StatusCode >= StatusClientErrorMin {
 		resp, err := parseError(response.RawBody)
 		return nil, resp, err
 	}
@@ -143,8 +162,8 @@ func (a *AsaasApi) CreateBilling(billingRequest BillingRequest) (*BillingRespons
 	params := request.Params{
 		Method:  "POST",
 		Body:    billingRequest,
-		Headers: map[string]interface{}{"access_token": a.Token},
-		URL:     a.BaseURL + "/v3/payments",
+		Headers: map[string]string{HeaderAccessToken: a.Token},
+		URL:     a.BaseURL + PathPayments,
 	}
 
 	response, err := request.New(params)
@@ -152,7 +171,7 @@ func (a *AsaasApi) CreateBilling(billingRequest BillingRequest) (*BillingRespons
 		return nil, nil, err
 	}
 
-	if response.StatusCode > 300 {
+	if response.StatusCode >= StatusClientErrorMin {
 		resp, err := parseError(response.RawBody)
 		return nil, resp, err
 	}
@@ -167,8 +186,8 @@ func (a *AsaasApi) GetBillingByAsaasId(billingId string) (*BillingResponse, *Err
 
 	params := request.Params{
 		Method:  "GET",
-		Headers: map[string]interface{}{"access_token": a.Token},
-		URL:     a.BaseURL + "/v3/payments/" + billingId,
+		Headers: map[string]string{HeaderAccessToken: a.Token},
+		URL:     a.BaseURL + PathPayments + "/" + billingId,
 	}
 
 	response, err := request.New(params)
@@ -176,7 +195,7 @@ func (a *AsaasApi) GetBillingByAsaasId(billingId string) (*BillingResponse, *Err
 		return nil, nil, err
 	}
 
-	if response.StatusCode > 300 {
+	if response.StatusCode >= StatusClientErrorMin {
 		resp, err := parseError(response.RawBody)
 		return nil, resp, err
 	}
@@ -191,8 +210,8 @@ func (a *AsaasApi) DeleteBilling(billingId string) (*DeleteBillingResponse, *Err
 
 	params := request.Params{
 		Method:  "DELETE",
-		Headers: map[string]interface{}{"access_token": a.Token},
-		URL:     a.BaseURL + "/v3/payments/" + billingId,
+		Headers: map[string]string{HeaderAccessToken: a.Token},
+		URL:     a.BaseURL + PathPayments + "/" + billingId,
 	}
 
 	response, err := request.New(params)
@@ -200,7 +219,7 @@ func (a *AsaasApi) DeleteBilling(billingId string) (*DeleteBillingResponse, *Err
 		return nil, nil, err
 	}
 
-	if response.StatusCode > 300 {
+	if response.StatusCode >= StatusClientErrorMin {
 		resp, err := parseError(response.RawBody)
 		return nil, resp, err
 	}
@@ -216,8 +235,8 @@ func (a *AsaasApi) CreateSubscription(subscriptionRequest SubscriptionRequest) (
 	params := request.Params{
 		Method:  "POST",
 		Body:    subscriptionRequest,
-		Headers: map[string]interface{}{"access_token": a.Token},
-		URL:     a.BaseURL + "/v3/subscriptions",
+		Headers: map[string]string{HeaderAccessToken: a.Token},
+		URL:     a.BaseURL + PathSubscriptions,
 	}
 
 	response, err := request.New(params)
@@ -225,7 +244,7 @@ func (a *AsaasApi) CreateSubscription(subscriptionRequest SubscriptionRequest) (
 		return nil, nil, err
 	}
 
-	if response.StatusCode > 300 {
+	if response.StatusCode >= StatusClientErrorMin {
 		resp, err := parseError(response.RawBody)
 		return nil, resp, err
 	}
@@ -240,9 +259,9 @@ func (a *AsaasApi) GetSubscriptionsByCustomerId(customerId string) ([]Subscripti
 
 	params := request.Params{
 		Method:  "GET",
-		Headers: map[string]interface{}{"access_token": a.Token},
-		URL:     a.BaseURL + "/v3/subscriptions",
-		QueryParams: map[string]interface{}{
+		Headers: map[string]string{HeaderAccessToken: a.Token},
+		URL:     a.BaseURL + PathSubscriptions,
+		QueryParams: map[string]any{
 			"customer": customerId,
 		},
 	}
@@ -252,7 +271,7 @@ func (a *AsaasApi) GetSubscriptionsByCustomerId(customerId string) ([]Subscripti
 		return nil, nil, err
 	}
 
-	if response.StatusCode > 300 {
+	if response.StatusCode >= StatusClientErrorMin {
 		resp, err := parseError(response.RawBody)
 		return nil, resp, err
 	}
@@ -267,8 +286,8 @@ func (a *AsaasApi) GetSubscriptionsPayments(subscriptionId string) ([]BillingRes
 
 	params := request.Params{
 		Method:  "GET",
-		Headers: map[string]interface{}{"access_token": a.Token},
-		URL:     a.BaseURL + "/v3/subscriptions/" + subscriptionId + "/payments",
+		Headers: map[string]string{HeaderAccessToken: a.Token},
+		URL:     a.BaseURL + PathSubscriptions + "/" + subscriptionId + "/payments",
 	}
 
 	response, err := request.New(params)
@@ -276,7 +295,7 @@ func (a *AsaasApi) GetSubscriptionsPayments(subscriptionId string) ([]BillingRes
 		return nil, nil, err
 	}
 
-	if response.StatusCode > 300 {
+	if response.StatusCode >= StatusClientErrorMin {
 		resp, err := parseError(response.RawBody)
 		return nil, resp, err
 	}
@@ -300,10 +319,10 @@ func getAccessToken(asaasAccessToken ...string) string {
 
 // getBaseURL é a função responsável por validar o ambiente e a URL base.
 func getBaseURL(environment environment) string {
-	if environment == "production" {
-		return "https://api.asaas.com"
+	if environment == Production {
+		return BaseURLProduction
 	}
-	return "https://sandbox.asaas.com/api"
+	return BaseURLSandbox
 }
 
 // parseError é a função que pega os dados do erro do Asaas e retorna em formato de Struct.

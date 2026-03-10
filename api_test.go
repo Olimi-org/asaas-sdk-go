@@ -135,7 +135,7 @@ func TestSuccessOnCreateBilling(t *testing.T) {
 
 	response, asaasErr, err := asaasApi.CreateBilling(BillingRequest{
 		Customer:    "cus_000006587961",
-		BillingType: "BOLETO",
+		BillingType: BillingTypeBoleto,
 		Value:       101.99,
 		DueDate:     "2025-03-25",
 	})
@@ -224,10 +224,10 @@ func TestSuccessOnCreateSubscription(t *testing.T) {
 
 	response, asaasErr, err := asaasApi.CreateSubscription(SubscriptionRequest{
 		CustomerId:  "cus_000006587961",
-		BillingType: "PIX",
+		BillingType: BillingTypePix,
 		Value:       5.01,
 		NextDueDate: "2025-03-30",
-		Cycle:       "MONTHLY",
+		Cycle:       CycleTypeMonthly,
 	})
 
 	if err != nil { // Erro interno

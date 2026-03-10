@@ -1,5 +1,37 @@
 package asaas
 
+// Constantes type-safe para BillingType (Tipo de Cobrança)
+type BillingType string
+
+const (
+	BillingTypeUndefined  BillingType = "UNDEFINED"
+	BillingTypeBoleto     BillingType = "BOLETO"
+	BillingTypeCreditCard BillingType = "CREDIT_CARD"
+	BillingTypePix        BillingType = "PIX"
+)
+
+// Constantes type-safe para Subscription Cycle (Ciclo da Assinatura)
+type CycleType string
+
+const (
+	CycleTypeWeekly       CycleType = "WEEKLY"
+	CycleTypeBiweekly     CycleType = "BIWEEKLY"
+	CycleTypeMonthly      CycleType = "MONTHLY"
+	CycleTypeBimonthly    CycleType = "BIMONTHLY"
+	CycleTypeQuarterly    CycleType = "QUARTERLY"
+	CycleTypeSemiannually CycleType = "SEMIANNUALLY"
+	CycleTypeYearly       CycleType = "YEARLY"
+)
+
+// Constantes type-safe para Subscription Status (Status da Assinatura)
+type SubscriptionStatus string
+
+const (
+	SubscriptionStatusActive   SubscriptionStatus = "ACTIVE"
+	SubscriptionStatusExpired  SubscriptionStatus = "EXPIRED"
+	SubscriptionStatusInactive SubscriptionStatus = "INACTIVE"
+)
+
 // CustomerRequest é a struct usada para a criação de um novo Cliente na API Asaas
 type CustomerRequest struct {
 	Name                 string  `json:"name"`                 // Obrigatório - Nome do Cliente
@@ -68,11 +100,11 @@ type ListCustomerResponse struct {
 type BillingRequest struct {
 	Customer string `json:"customer"` // Obrigatório - ID do cliente gerado na API Asaas
 	// Obrigatório - Forma de pagamento:
-	//  * "UNDEFINED"
-	//  * "BOLETO"
-	//  * "CREDIT_CARD"
-	//  * "PIX"
-	BillingType                                string   `json:"billingType"`
+	//  * BillingTypeUndefined ("UNDEFINED")
+	//  * BillingTypeBoleto ("BOLETO")
+	//  * BillingTypeCreditCard ("CREDIT_CARD")
+	//  * BillingTypePix ("PIX")
+	BillingType                                BillingType   `json:"billingType"`
 	Value                                      float64  `json:"value"`                                      // Obrigatório - Valor da cobrança
 	DueDate                                    string   `json:"dueDate"`                                    // Obrigatório - Data de vencimento da cobrança - Formato: yyyy-mm-dd
 	Description                                *string  `json:"description"`                                // Descrição da cobrança (máx. 500 caracteres)
@@ -92,11 +124,11 @@ type BillingResponse struct {
 	DateCreated string  `json:"dateCreated"` // Data de criação da cobrança - Formato: yyyy-mm-dd
 	Value       float64 `json:"value"`       // Valor da cobrança
 	// Obrigatório - Forma de pagamento:
-	//  * "UNDEFINED"
-	//  * "BOLETO"
-	//  * "CREDIT_CARD"
-	//  * "PIX"
-	BillingType           string     `json:"billingType"`
+	//  * BillingTypeUndefined ("UNDEFINED")
+	//  * BillingTypeBoleto ("BOLETO")
+	//  * BillingTypeCreditCard ("CREDIT_CARD")
+	//  * BillingTypePix ("PIX")
+	BillingType           BillingType     `json:"billingType"`
 	CanBePaidAfterDueDate bool       `json:"canBePaidAfterDueDate"` // Informa se a cobrança pode ser paga após a data de vencimento
 	CreditCard            CreditCard `json:"creditCard"`            // Informações do cartão de crédito usado no pagamento
 	PixTransaction        string     `json:"pixTransaction"`        // ID da transação do PIX no caso de pagamento via PIX
@@ -127,22 +159,22 @@ type DeleteBillingResponse struct {
 type SubscriptionRequest struct {
 	CustomerId string `json:"customer"` // Obrigatório - Identificador único do cliente
 	// Obrigatório - Forma de pagamento:
-	//  * "UNDEFINED"
-	//  * "BOLETO"
-	//  * "CREDIT_CARD"
-	//  * "PIX"
-	BillingType string  `json:"billingType"`
+	//  * BillingTypeUndefined ("UNDEFINED")
+	//  * BillingTypeBoleto ("BOLETO")
+	//  * BillingTypeCreditCard ("CREDIT_CARD")
+	//  * BillingTypePix ("PIX")
+	BillingType BillingType  `json:"billingType"`
 	Value       float64 `json:"value"`       // Obrigatório - Valor da assinatura
 	NextDueDate string  `json:"nextDueDate"` // Obrigatório - Vencimento da primeira cobrança
 	// Obrigatório - Periodicidade da cobrança:
-	//  * "WEEKLY"
-	//  * "BIWEEKLY"
-	//  * "MONTHLY"
-	//  * "BIMONTHLY"
-	//  * "QUARTERLY"
-	//  * "SEMIANNUALLY"
-	//  * "YEARLY"
-	Cycle             string  `json:"cycle"`
+	//  * CycleTypeWeekly ("WEEKLY")
+	//  * CycleTypeBiweekly ("BIWEEKLY")
+	//  * CycleTypeMonthly ("MONTHLY")
+	//  * CycleTypeBimonthly ("BIMONTHLY")
+	//  * CycleTypeQuarterly ("QUARTERLY")
+	//  * CycleTypeSemiannually ("SEMIANNUALLY")
+	//  * CycleTypeYearly ("YEARLY")
+	Cycle             CycleType  `json:"cycle"`
 	Description       *string `json:"description"`       // Descrição da assinatura (máx. 500 caracteres)
 	EndDate           *string `json:"endDate"`           // Data limite para vencimento das cobranças
 	MaxPayments       *int    `json:"maxPayments"`       // Número máximo de cobranças a serem geradas para esta assinatura
@@ -157,32 +189,29 @@ type SubscriptionResponse struct {
 	CustomerId  string `json:"customer"`    // Identificador único do cliente
 	PaymentLink string `json:"paymentLink"` // Identificador único do link de pagamentos ao qual a assinatura pertence
 	// Forma de pagamento:
-	//  * "UNDEFINED"
-	//  * "BOLETO"
-	//  * "CREDIT_CARD"
-	//  * "DEBIT_CARD"
-	//  * "TRANSFER"
-	//  * "DEPOSIT"
-	//  * "PIX"
-	BillingType string `json:"billingType"`
+	//  * BillingTypeUndefined ("UNDEFINED")
+	//  * BillingTypeBoleto ("BOLETO")
+	//  * BillingTypeCreditCard ("CREDIT_CARD")
+	//  * BillingTypePix ("PIX")
+	BillingType BillingType `json:"billingType"`
 	// Obrigatório - Periodicidade da cobrança:
-	//  * "WEEKLY"
-	//  * "BIWEEKLY"
-	//  * "MONTHLY"
-	//  * "BIMONTHLY"
-	//  * "QUARTERLY"
-	//  * "SEMIANNUALLY"
-	//  * "YEARLY"
-	Cycle       string  `json:"cycle"`
+	//  * CycleTypeWeekly ("WEEKLY")
+	//  * CycleTypeBiweekly ("BIWEEKLY")
+	//  * CycleTypeMonthly ("MONTHLY")
+	//  * CycleTypeBimonthly ("BIMONTHLY")
+	//  * CycleTypeQuarterly ("QUARTERLY")
+	//  * CycleTypeSemiannually ("SEMIANNUALLY")
+	//  * CycleTypeYearly ("YEARLY")
+	Cycle       CycleType  `json:"cycle"`
 	Value       float64 `json:"value"`       // Valor da assinatura
 	NextDueDate string  `json:"nextDueDate"` // Vencimento do próximo pagamento a ser gerado
 	EndDate     string  `json:"endDate"`     // Data limite para vencimento das cobranças
 	Description string  `json:"description"` // Descrição da assinatura (máx. 500 caracteres)
 	// Status da assinatura
-	//  * "ACTIVE"
-	//  * "EXPIRED"
-	//  * "INACTIVE"
-	Status            string `json:"status"`
+	//  * SubscriptionStatusActive ("ACTIVE")
+	//  * SubscriptionStatusExpired ("EXPIRED")
+	//  * SubscriptionStatusInactive ("INACTIVE")
+	Status            SubscriptionStatus `json:"status"`
 	Deleted           bool   `json:"deleted"`           // Se a Assinatura foi excluído na base de dados da API Asaas
 	MaxPayments       int    `json:"maxPayments"`       // Número máximo de cobranças a serem geradas para esta assinatura
 	ExternalReference string `json:"externalReference"` // Identificador do sistema integrado ao Asaas
