@@ -12,12 +12,13 @@ import (
 	"github.com/joho/godotenv"
 )
 
+func TestMain(m *testing.M) {
+	godotenv.Load(".env")
+	os.Exit(m.Run())
+}
+
 func setupTest(t *testing.T) *AsaasApi {
 	t.Helper()
-	err := godotenv.Load(".env")
-	if err != nil {
-		t.Skip("Arquivo .env não encontrado, pulando teste")
-	}
 	token := os.Getenv("ASAAS_ACCESS_TOKEN")
 	if token == "" {
 		t.Skip("ASAAS_ACCESS_TOKEN não definido, pulando teste")
@@ -121,8 +122,6 @@ func TestSuccessOnCreateCustomer(t *testing.T) {
 	t.Cleanup(func() {
 		api.DeleteCustomer(context.Background(), response.Id)
 	})
-
-	fmt.Print(response)
 	t.Log(response.Id)
 }
 
@@ -135,8 +134,6 @@ func TestSuccessOnDeleteCustomer(t *testing.T) {
 
 	response, err := api.DeleteCustomer(context.Background(), customer.Id)
 	assertNoError(t, err)
-
-	fmt.Print(response)
 	t.Log(response.Id)
 }
 
@@ -149,8 +146,6 @@ func TestSuccessOnGetCustomerByIdAsaas(t *testing.T) {
 
 	response, err := api.GetCustomerByAsaasId(context.Background(), customer.Id)
 	assertNoError(t, err)
-
-	fmt.Print(response)
 	t.Log(response.Id)
 }
 
@@ -172,8 +167,6 @@ func TestSuccessOnGetCustomerByCpfCnpj(t *testing.T) {
 		}
 		return
 	}
-
-	fmt.Print(response)
 	t.Log(response.Id)
 }
 
@@ -196,8 +189,6 @@ func TestSuccessOnGetCustomerByName(t *testing.T) {
 		}
 		return
 	}
-
-	fmt.Print(response)
 	t.Log(response.Id)
 }
 
@@ -223,8 +214,6 @@ func TestSuccessOnCreateBilling(t *testing.T) {
 		}
 		return
 	}
-
-	fmt.Print(response)
 	t.Log(response.Id)
 }
 
@@ -247,8 +236,6 @@ func TestSuccessOnGetBillingByIdAsaas(t *testing.T) {
 
 	response, err := api.GetBillingByAsaasId(context.Background(), billing.Id)
 	assertNoError(t, err)
-
-	fmt.Print(response)
 	t.Log(response.Id)
 }
 
@@ -271,8 +258,6 @@ func TestSuccessOnDeleteBilling(t *testing.T) {
 
 	response, err := api.DeleteBilling(context.Background(), billing.Id)
 	assertNoError(t, err)
-
-	fmt.Print(response)
 	t.Log(response.Id)
 }
 
@@ -299,8 +284,6 @@ func TestSuccessOnCreateSubscription(t *testing.T) {
 		}
 		return
 	}
-
-	fmt.Print(response)
 	t.Log(response.Id)
 }
 
@@ -326,7 +309,6 @@ func TestSuccessOnGetSubscriptionsByCustomerId(t *testing.T) {
 	assertNoError(t, err)
 
 	for _, item := range response {
-		fmt.Print(item.Id)
 		t.Log(item.Id)
 	}
 }
